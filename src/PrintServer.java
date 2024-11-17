@@ -6,7 +6,6 @@ public class PrintServer extends UnicastRemoteObject implements PrintServerI {
         super();
     }
 
-
     public String print(String filename, String printer) throws RemoteException {
         return "Printing file: " + filename + " on printer: " + printer;
     }
@@ -19,17 +18,6 @@ public class PrintServer extends UnicastRemoteObject implements PrintServerI {
 
     }
 
-    public void start() throws RemoteException {
-
-    }
-
-    public void stop() throws RemoteException {
-
-    }
-
-    public void restart() throws RemoteException {
-
-    }
 
     public void status(String printer) throws RemoteException {
 
