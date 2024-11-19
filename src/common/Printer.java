@@ -5,8 +5,8 @@ import java.util.Queue;
 
 
 public class Printer {
-    private Queue<String> jobQueue;
-    private String name;
+    private final Queue<String> jobQueue;
+    private final String name;
 
     public Printer(String printerName) {
         jobQueue = new LinkedList<>();

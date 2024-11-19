@@ -81,7 +81,7 @@ public class Parameters
             case ColorProfile.className:
                 colorProfile = ColorProfile.valueOf(value);
                 break;
-        };
+        }
         return "Value of " + parameter + " changed to: " + value + "\n";
     }
 

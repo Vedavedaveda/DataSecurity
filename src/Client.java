@@ -70,7 +70,7 @@ public class Client {
                             if (printer == null) break;
 
                             System.out.print("Enter job number: ");
-                            int job = 0;
+                            int job;
                             try {
                                 job = Integer.parseInt(client.scanner.nextLine());
                             } catch (NumberFormatException e) {
