@@ -1,12 +1,52 @@
 package common;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 
 public class Printer {
+    private static final String PRINTER1 = "Printer 1";
+    private static final String PRINTER2 = "Printer 2";
+    private static final String PRINTER3 = "Printer 3";
+
+    public static final String[] VALID_PRINTERS = {
+            PRINTER1,
+            PRINTER2,
+            PRINTER3
+    };
+
+    private static final Map<String, Integer> PRINTER_ID_MAP = new HashMap<>();
+    static {
+        for (int i = 0; i < VALID_PRINTERS.length; i++) {
+            PRINTER_ID_MAP.put(VALID_PRINTERS[i], i);
+        }
+    }
+
     private final Queue<String> jobQueue;
     private final String name;
+
+    public static int getPrinterId(String printer) {
+        return PRINTER_ID_MAP.getOrDefault(printer, -1);
+    }
+
+    public static boolean isValidPrinter(String printer) {
+        for (String validPrinter : VALID_PRINTERS) {
+            if (validPrinter.equals(printer)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String getPrinterOptions() {
+        StringBuilder options = new StringBuilder();
+        for (String printer : VALID_PRINTERS) {
+            options.append(printer).append(", ");
+        }
+        return options.substring(0, options.length() - 2);
+    }
 
     public Printer(String printerName) {
         jobQueue = new LinkedList<>();

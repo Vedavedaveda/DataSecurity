@@ -1,5 +1,5 @@
 import common.Parameters;
-import common.Printers;
+import common.Printer;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -199,9 +199,9 @@ public class Client {
     }
 
     private String getPrinterFromInput() {
-        System.out.print("Enter printer (options: " + Printers.getPrinterOptions() + "): ");
+        System.out.print("Enter printer (options: " + Printer.getPrinterOptions() + "): ");
         String printer = this.scanner.nextLine();
-        if (Printers.isValidPrinter(printer)) {
+        if (Printer.isValidPrinter(printer)) {
             return printer;
         } else {
             System.out.println("Invalid printer selected.\n");
@@ -210,7 +210,7 @@ public class Client {
     }
 
     private String getParameterFromInput() {
-        System.out.print("Enter parameter (options: " + Parameters.gerParameterOptions() + "): ");
+        System.out.print("Enter parameter (options: " + Parameters.getParameterOptions() + "): ");
         String parameter = this.scanner.nextLine();
 
         if (Parameters.isValidParameter(parameter)) {
