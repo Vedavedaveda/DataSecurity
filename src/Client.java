@@ -140,10 +140,10 @@ public class Client {
         return this.printServer;
     }
 
-    private static String hashPassword(String password) {
+    private static String hashPassword(String password, String salt) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(password.getBytes("UTF-8"));
+            byte[] hash = digest.digest((password+salt).getBytes("UTF-8"));
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);
@@ -172,8 +172,10 @@ public class Client {
 
             String username = get_username_input();
             String password =  get_password_input();
-            String passwordHash = hashPassword(password);
+            String salt = this.authenticator.getSaltForUser(username);
+            String passwordHash = hashPassword(password, salt);
             System.out.println(username);
+            System.out.println(salt);
             System.out.println(passwordHash);
 
             if (this.authenticator.login(username, passwordHash)) {

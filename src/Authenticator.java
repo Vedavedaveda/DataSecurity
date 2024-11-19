@@ -1,34 +1,45 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Authenticator {
     private static final String PASSWORD_FILE = "passwords.txt";
-    private final Map<String, String> passwordStore = new HashMap<>();
+    private final Map<String, UserInfo> userInfoStore = new HashMap<>();
 
     protected Authenticator() throws RemoteException {
         this.loadPasswordsFromFile();
     }
 
     public boolean login(String username, String passwordHash) throws RemoteException {
+        return passwordHash.equals(this.userInfoStore.get(username).getHashedPassword());
+    }
 
-        return passwordHash.equals(this.passwordStore.get(username));
+    public String getSaltForUser(String username) {
+        return userInfoStore.get(username).getSalt();
     }
 
     private void loadPasswordsFromFile() {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("passwords.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader(PASSWORD_FILE));
 
             String line;
             try {
                 while((line = reader.readLine()) != null) {
                     String[] parts = line.split(":");
-                    if (parts.length == 2) {
-                        this.passwordStore.put(parts[0], parts[1]);
+                    if (parts.length == 3) {
+                        String username = parts[0];
+                        String hashedPassword = parts[1];
+                        String salt = parts[2];
+
+                        UserInfo userInfo = new UserInfo();
+                        userInfo.setUsername(username);
+                        userInfo.setHashedPassword(hashedPassword);
+                        userInfo.setSalt(salt);
+
+                        userInfoStore.put(username, userInfo);
                     }
                 }
             } catch (Throwable var5) {
