@@ -1,7 +1,8 @@
 Alice:admin
-Bob:service_technician
 Cecilia:power_user
 David:user
 Erica:user
 Fred:user
-George:user
+George:user,service_technician
+Henry:user
+Ida:power_user
