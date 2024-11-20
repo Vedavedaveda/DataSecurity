@@ -18,6 +18,10 @@ public class Authenticator {
         return passwordHash.equals(this.userPasswordInfoStore.get(username).getHashedPassword());
     }
 
+    public boolean userExists(String username) {
+        return userPasswordInfoStore.containsKey(username);
+    }
+
     public String getSaltForUser(String username) {
         return userPasswordInfoStore.get(username).getSalt();
     }

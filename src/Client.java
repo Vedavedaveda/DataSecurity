@@ -157,6 +157,12 @@ public class Client {
 
             String username = get_username_input();
             String password =  get_password_input();
+
+            if (!this.authenticator.userExists(username)) {
+                System.out.println("No user with given username.");
+                return;
+            }
+
             String salt = this.authenticator.getSaltForUser(username);
             String passwordHash = hashPassword(password, salt);
 
