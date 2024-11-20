@@ -1,9 +1,7 @@
 import common.Parameters;
 import common.Printer;
 
-import java.net.MalformedURLException;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import java.security.MessageDigest;
@@ -15,10 +13,10 @@ public class Client {
     private final Scanner scanner = new Scanner(System.in);
     private final Authenticator authenticator = new Authenticator();
 
-    public Client() throws RemoteException {
+    public Client() {
     }
 
-    public static void main(String[] args) throws NotBoundException, MalformedURLException, RemoteException {
+    public static void main(String[] args) {
         Client client = new Client();
         try {
 
@@ -154,16 +152,13 @@ public class Client {
         return this.scanner.nextLine();
     }
 
-    private void start_server() throws NotBoundException, MalformedURLException, RemoteException {
+    private void start_server() {
         try {
 
             String username = get_username_input();
             String password =  get_password_input();
             String salt = this.authenticator.getSaltForUser(username);
             String passwordHash = hashPassword(password, salt);
-            System.out.println(username);
-            System.out.println(salt);
-            System.out.println(passwordHash);
 
             if (this.authenticator.login(username, passwordHash)) {
                 this.printServer = (PrintServerI) Naming.lookup("rmi://localhost:5099/print");
@@ -191,7 +186,6 @@ public class Client {
             System.out.print("Enter filename: ");
             String filename = this.scanner.nextLine();
 
-            // This seems strange to me
             String printer = this.getPrinterFromInput();
             if (printer == null) return;
 
@@ -206,7 +200,6 @@ public class Client {
             return printer;
         } else {
             System.out.println("Invalid printer selected.\n");
-            // Can we handle this here instead of just returning null?
             return null;
         }
     }
