@@ -1,4 +1,4 @@
-public class UserInfo {
+public class UserPasswordInfo {
     private String username;
     private String hashedPassword;
     private String salt;
