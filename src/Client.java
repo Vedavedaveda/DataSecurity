@@ -166,7 +166,6 @@ public class Client {
             System.out.println(passwordHash);
 
             if (this.authenticator.login(username, passwordHash)) {
-                // TODO this does not create a new printServer object each time!
                 this.printServer = (PrintServerI) Naming.lookup("rmi://localhost:5099/print");
                 System.out.println("Login successful, print server started.");
 
