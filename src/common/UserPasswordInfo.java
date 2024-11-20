@@ -1,3 +1,5 @@
+package common;
+
 public class UserPasswordInfo {
     private String username;
     private String hashedPassword;
