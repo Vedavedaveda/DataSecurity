@@ -1,0 +1,7 @@
+Alice:admin
+Bob:service_technician
+Cecilia:power_user
+David:user
+Erica:user
+Fred:user
+George:user
