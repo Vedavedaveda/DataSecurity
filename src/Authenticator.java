@@ -7,18 +7,18 @@ import java.util.Map;
 
 public class Authenticator {
     private static final String PASSWORD_FILE = "passwords.txt";
-    private final Map<String, UserPasswordInfo> userPasswordInfoStore = new HashMap<>();
+    private final Map<String, UserInfo> userInfoStore = new HashMap<>();
 
     protected Authenticator() throws RemoteException {
         this.loadPasswordsFromFile();
     }
 
     public boolean login(String username, String passwordHash) throws RemoteException {
-        return passwordHash.equals(this.userPasswordInfoStore.get(username).getHashedPassword());
+        return passwordHash.equals(this.userInfoStore.get(username).getHashedPassword());
     }
 
     public String getSaltForUser(String username) {
-        return userPasswordInfoStore.get(username).getSalt();
+        return userInfoStore.get(username).getSalt();
     }
 
     private void loadPasswordsFromFile() {
@@ -34,12 +34,12 @@ public class Authenticator {
                         String hashedPassword = parts[1];
                         String salt = parts[2];
 
-                        UserPasswordInfo userPasswordInfo = new UserPasswordInfo();
-                        userPasswordInfo.setUsername(username);
-                        userPasswordInfo.setHashedPassword(hashedPassword);
-                        userPasswordInfo.setSalt(salt);
+                        UserInfo userInfo = new UserInfo();
+                        userInfo.setUsername(username);
+                        userInfo.setHashedPassword(hashedPassword);
+                        userInfo.setSalt(salt);
 
-                        userPasswordInfoStore.put(username, userPasswordInfo);
+                        userInfoStore.put(username, userInfo);
                     }
                 }
             } catch (Throwable var5) {
