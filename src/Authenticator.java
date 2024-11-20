@@ -3,7 +3,6 @@ import common.UserPasswordInfo;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,12 +10,16 @@ public class Authenticator {
     private static final String PASSWORD_FILE = "passwords.txt";
     private final Map<String, UserPasswordInfo> userPasswordInfoStore = new HashMap<>();
 
-    protected Authenticator() throws RemoteException {
+    protected Authenticator() {
         this.loadPasswordsFromFile();
     }
 
-    public boolean login(String username, String passwordHash) throws RemoteException {
+    public boolean login(String username, String passwordHash) {
         return passwordHash.equals(this.userPasswordInfoStore.get(username).getHashedPassword());
+    }
+
+    public boolean userExists(String username) {
+        return userPasswordInfoStore.containsKey(username);
     }
 
     public String getSaltForUser(String username) {
@@ -37,7 +40,6 @@ public class Authenticator {
                         String salt = parts[2];
 
                         UserPasswordInfo userInfo = new UserPasswordInfo();
-                        userInfo.setUsername(username);
                         userInfo.setHashedPassword(hashedPassword);
                         userInfo.setSalt(salt);
 

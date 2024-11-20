@@ -8,7 +8,7 @@ public class PrintServer extends UnicastRemoteObject implements PrintServerI {
 
     private static final Printer[] printers;
     private static final Parameters parameters = new Parameters();
-    private SessionManager session_manager = new SessionManager();
+    private final SessionManager session_manager = new SessionManager();
 
     static {
         printers = new Printer[Printer.VALID_PRINTERS.length];
