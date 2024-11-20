@@ -32,23 +32,11 @@ public class Client {
                         break;
 
                     case "stop":
-                        //this.printServer = null;
-//                        System.out.println("Disconnected from print server.");
                         client.stop_server();
                         break;
 
                     case "print":
-                        if (client.get_printServer() == null) {
-                            System.out.println("Server needs to be started!");
-                        } else{
-                            System.out.print("Enter filename: ");
-                            String filename = client.scanner.nextLine();
-
-                            String printer = client.getPrinterFromInput();
-                            if (printer == null) break;
-
-                            System.out.println(client.get_printServer().print(filename, printer));
-                        }
+                        client.print();
                         break;
 
                     case "queue":
@@ -168,7 +156,6 @@ public class Client {
 
     private void start_server() throws NotBoundException, MalformedURLException, RemoteException {
         try {
-            //Authenticator authenticator = new Authenticator();
 
             String username = get_username_input();
             String password =  get_password_input();
@@ -198,6 +185,21 @@ public class Client {
         System.out.println("Disconnected from print server.");
     }
 
+    private void print() throws RemoteException {
+        if (this.get_printServer() == null) {
+            System.out.println("Server needs to be started!");
+        } else {
+            System.out.print("Enter filename: ");
+            String filename = this.scanner.nextLine();
+
+            // This seems strange to me
+            String printer = this.getPrinterFromInput();
+            if (printer == null) return;
+
+            System.out.println(this.get_printServer().print(filename, printer));
+        }
+    }
+
     private String getPrinterFromInput() {
         System.out.print("Enter printer (options: " + Printer.getPrinterOptions() + "): ");
         String printer = this.scanner.nextLine();
@@ -205,6 +207,7 @@ public class Client {
             return printer;
         } else {
             System.out.println("Invalid printer selected.\n");
+            // Can we handle this here instead of just returning null?
             return null;
         }
     }

@@ -8,6 +8,7 @@ public class PrintServer extends UnicastRemoteObject implements PrintServerI {
 
     private static final Printer[] printers;
     private static final Parameters parameters = new Parameters();
+    private SessionManager session_manager = new SessionManager();
 
     static {
         printers = new Printer[Printer.VALID_PRINTERS.length];
@@ -18,35 +19,42 @@ public class PrintServer extends UnicastRemoteObject implements PrintServerI {
 
     public PrintServer() throws RemoteException {
         super();
+        this.session_manager.start_session();
     }
 
     public String print(String filename, String printer) throws RemoteException {
         // prints file filename on the specified printer
+        if (!session_manager.check_session()) return "Session expired. Please log in again.";
         return printers[Printer.getPrinterId(printer)].print(filename);
     }
 
     public String queue(String printer) throws RemoteException {
         // lists the print queue for a given printer on the user’s display in lines of the form ¡job number¿ ¡file name¿
+        if (!session_manager.check_session()) return "Session expired. Please log in again.";
         return printers[Printer.getPrinterId(printer)].queue();
     }
 
     public String topQueue(String printer, int job) throws RemoteException {
         // moves job to the top of the queue
+        if (!session_manager.check_session()) return "Session expired. Please log in again.";
         return printers[Printer.getPrinterId(printer)].topQueue(job);
     }
 
     public String status(String printer) throws RemoteException {
         // prints status of printer on the user’s display
+        if (!session_manager.check_session()) return "Session expired. Please log in again.";
         return printers[Printer.getPrinterId(printer)].status();
     }
 
     public String readConfig(String parameter) throws RemoteException {
         // prints the value of the parameter on the print server to the user’s display
+        if (!session_manager.check_session()) return "Session expired. Please log in again.";
         return parameters.readConfig(parameter);
     }
 
     public String setConfig(String parameter, String value) throws RemoteException {
         // sets the parameter on the print server to value
+        if (!session_manager.check_session()) return "Session expired. Please log in again.";
         return parameters.setConfig(parameter, value);
     }
 
