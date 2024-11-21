@@ -70,7 +70,7 @@ public class Printer {
                 jobNumber++;
             }
 
-            return output.toString();
+            return output.toString().strip();
         }
     }
 
