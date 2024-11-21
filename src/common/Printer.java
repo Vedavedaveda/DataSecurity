@@ -55,12 +55,12 @@ public class Printer {
 
     public String print(String filename) {
         jobQueue.add(filename);
-        return "File: '" + filename + "' add to queue on printer: " + name + "\n";
+        return "File: '" + filename + "' add to queue on printer: " + name ;
     }
 
     public String queue() {
         if (jobQueue.isEmpty()) {
-            return "The print queue is empty.\n";
+            return "The print queue is empty.";
         } else {
             StringBuilder output = new StringBuilder();
             int jobNumber = 1;
@@ -76,7 +76,7 @@ public class Printer {
 
     public String topQueue(int jobNumber) {
         if (jobNumber < 1 || jobNumber > jobQueue.size()) {
-            return "Invalid job number.\n";
+            return "Invalid job number.";
         }
 
         String[] jobs = jobQueue.toArray(new String[0]);
@@ -90,11 +90,11 @@ public class Printer {
             }
         }
 
-        return "Moved job " + jobNumber + " to the top of the queue.\n";
+        return "Moved job " + jobNumber + " to the top of the queue.";
     }
 
     public String status() {
-        return "Jobs in queue for " + name + ": " + jobQueue.size() + "\n";
+        return "Jobs in queue for " + name + ": " + jobQueue.size();
     }
 
     public void clear() {
