@@ -11,7 +11,7 @@ public interface PrintServerI extends Remote {
     String status(String printer) throws RemoteException; // prints status of printer on the user’s display
     String readConfig(String parameter) throws RemoteException; // prints the value of the parameter on the print server to the user’s display
     String setConfig(String parameter, String value) throws RemoteException; // sets the parameter on the print server to value
-    void login() throws RemoteException;
+    void login(String username) throws RemoteException;
     void logout() throws RemoteException;
     void clear() throws RemoteException;
 }

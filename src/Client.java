@@ -140,7 +140,7 @@ public class Client {
             String passwordHash = hashPassword(password, salt);
 
             if (this.authenticator.login(username, passwordHash)) {
-                this.printServer.login();
+                this.printServer.login(username);
                 System.out.println("Login successful.");
                 return true;
 
