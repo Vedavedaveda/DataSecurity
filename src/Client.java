@@ -1,7 +1,9 @@
 import common.Parameters;
 import common.Printer;
 
+import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import java.security.MessageDigest;
@@ -16,15 +18,30 @@ public class Client {
     public Client() {
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws MalformedURLException, NotBoundException, RemoteException {
         Client client = new Client();
-        try {
+        client.connectToPrintServer();
 
+        System.out.println("Login to the print server");
+        boolean loggedIn = false;
+        while (!loggedIn) {
+            loggedIn = client.login();
+        }
+
+        try {
             while(true) {
                 System.out.print("Enter command: ");
                 String command = client.scanner.nextLine();
 
                 switch (command) {
+                    case "login":
+                        client.login();
+                        break;
+
+                    case "logout":
+                        client.logout();
+                        break;
+
                     case "start":
                         client.start_server();
                         break;
@@ -33,80 +50,32 @@ public class Client {
                         client.stop_server();
                         break;
 
+                    case "restart":
+                        client.restart_server();
+                        break;
+
                     case "print":
                         client.print();
                         break;
 
                     case "queue":
-                        if (client.get_printServer() == null) {
-                            System.out.println("Server needs to be started!");
-                        } else{
-                            String printer = client.getPrinterFromInput();
-                            if (printer == null) break;
-
-                            System.out.println(client.get_printServer().queue(printer));
-                        }
+                        client.queue();
                         break;
 
                     case "topQueue":
-                        if (client.get_printServer() == null) {
-                            System.out.println("Server needs to be started!");
-                        } else{
-                            String printer = client.getPrinterFromInput();
-                            if (printer == null) break;
-
-                            System.out.print("Enter job number: ");
-                            int job;
-                            try {
-                                job = Integer.parseInt(client.scanner.nextLine());
-                            } catch (NumberFormatException e) {
-                                System.out.println("Invalid job number.\n");
-                                break;
-                            }
-
-                            System.out.println(client.get_printServer().topQueue(printer, job));
-                        }
-                        break;
-
-                    case "restart":
-                        client.stop_server();
-                        client.start_server();
+                        client.topQueue();
                         break;
 
                     case "status":
-                        if (client.get_printServer() == null) {
-                            System.out.println("Server needs to be started!");
-                        } else{
-                            String printer = client.getPrinterFromInput();
-                            if (printer == null) break;
-
-                            System.out.println(client.get_printServer().status(printer));
-                        }
+                        client.status();
                         break;
 
                     case "readConfig":
-                        if (client.get_printServer() == null) {
-                            System.out.println("Server needs to be started!");
-                        } else{
-                            String parameter = client.getParameterFromInput();
-                            if (parameter == null) break;
-
-                            System.out.println(client.get_printServer().readConfig(parameter));
-                        }
+                        client.readConfig();
                         break;
 
                     case "setConfig":
-                        if (client.get_printServer() == null) {
-                            System.out.println("Server needs to be started!");
-                        } else{
-                            String parameter = client.getParameterFromInput();
-                            if (parameter == null) break;
-
-                            String value = client.getParameterValueFromInput(parameter);
-                            if (value == null) break;
-
-                            System.out.println(client.get_printServer().setConfig(parameter, value));
-                        }
+                        client.setConfig();
                         break;
 
                     case "exit":
@@ -124,6 +93,10 @@ public class Client {
 
     private PrintServerI get_printServer() {
         return this.printServer;
+    }
+
+    private void connectToPrintServer() throws MalformedURLException, NotBoundException, RemoteException {
+        this.printServer = (PrintServerI) Naming.lookup("rmi://localhost:5099/print");
     }
 
     private static String hashPassword(String password, String salt) {
@@ -152,7 +125,7 @@ public class Client {
         return this.scanner.nextLine();
     }
 
-    private void start_server() {
+    private boolean login() {
         try {
 
             String username = get_username_input();
@@ -160,43 +133,42 @@ public class Client {
 
             if (!this.authenticator.userExists(username)) {
                 System.out.println("No user with given username.");
-                return;
+                return false;
             }
 
             String salt = this.authenticator.getSaltForUser(username);
             String passwordHash = hashPassword(password, salt);
 
             if (this.authenticator.login(username, passwordHash)) {
-                this.printServer = (PrintServerI) Naming.lookup("rmi://localhost:5099/print");
-                System.out.println("Login successful, print server started.");
+                this.printServer.login();
+                System.out.println("Login successful.");
+                return true;
 
             } else {
                 System.out.println("Login failed.");
+                return false;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
+    }
 
+    private void logout() throws RemoteException {
+        this.printServer.logout();
+        System.out.println("Logout successful.");
+    }
+
+    private void start_server() throws RemoteException {
+        System.out.println(this.printServer.start());
     }
 
     private void stop_server() throws RemoteException {
-        this.get_printServer().clear();
-        this.printServer = null;
-        System.out.println("Disconnected from print server.");
+        System.out.println(this.printServer.stop());
     }
 
-    private void print() throws RemoteException {
-        if (this.get_printServer() == null) {
-            System.out.println("Server needs to be started!");
-        } else {
-            System.out.print("Enter filename: ");
-            String filename = this.scanner.nextLine();
-
-            String printer = this.getPrinterFromInput();
-            if (printer == null) return;
-
-            System.out.println(this.get_printServer().print(filename, printer));
-        }
+    private void restart_server() throws RemoteException {
+        System.out.println(this.printServer.restart());
     }
 
     private String getPrinterFromInput() {
@@ -208,6 +180,46 @@ public class Client {
             System.out.println("Invalid printer selected.\n");
             return null;
         }
+    }
+
+    private void print() throws RemoteException {
+        System.out.print("Enter filename: ");
+        String filename = this.scanner.nextLine();
+
+        String printer = this.getPrinterFromInput();
+        if (printer == null) return;
+
+        System.out.println(this.get_printServer().print(filename, printer));
+    }
+
+    private void queue() throws RemoteException {
+        String printer = this.getPrinterFromInput();
+        if (printer == null) return;
+
+        System.out.println(this.get_printServer().queue(printer));
+    }
+
+    private void topQueue() throws RemoteException {
+        String printer = this.getPrinterFromInput();
+        if (printer == null) return;
+
+        System.out.print("Enter job number: ");
+        int job;
+        try {
+            job = Integer.parseInt(this.scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid job number.\n");
+            return;
+        }
+
+        System.out.println(this.get_printServer().topQueue(printer, job));
+    }
+
+    private void status() throws RemoteException {
+        String printer = this.getPrinterFromInput();
+        if (printer == null) return;
+
+        System.out.println(this.get_printServer().status(printer));
     }
 
     private String getParameterFromInput() {
@@ -233,4 +245,22 @@ public class Client {
             return null;
         }
     }
+
+    private void readConfig() throws RemoteException {
+        String parameter = this.getParameterFromInput();
+        if (parameter == null) return;
+
+        System.out.println(this.get_printServer().readConfig(parameter));
+    }
+
+    private void setConfig() throws RemoteException {
+        String parameter = this.getParameterFromInput();
+        if (parameter == null) return;
+
+        String value = this.getParameterValueFromInput(parameter);
+        if (value == null) return;
+
+        System.out.println(this.get_printServer().setConfig(parameter, value));
+    }
+
 }

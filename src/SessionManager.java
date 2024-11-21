@@ -8,6 +8,10 @@ public class SessionManager {
         this.active_session = new Session();
     }
 
+    public void stop_session() {
+        this.active_session = null;
+    }
+
     public boolean check_session() {
 
         if (this.active_session == null) {
