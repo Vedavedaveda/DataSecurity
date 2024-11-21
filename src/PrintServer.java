@@ -9,6 +9,7 @@ public class PrintServer extends UnicastRemoteObject implements PrintServerI {
     private static final Printer[] printers;
     private static final Parameters parameters = new Parameters();
     private final SessionManager session_manager = new SessionManager();
+    private boolean active = true;
 
     static {
         printers = new Printer[Printer.VALID_PRINTERS.length];
@@ -22,40 +23,76 @@ public class PrintServer extends UnicastRemoteObject implements PrintServerI {
         this.session_manager.start_session();
     }
 
-    public String print(String filename, String printer) throws RemoteException {
-        // prints file filename on the specified printer
+    private String checkServerState() {
         if (!session_manager.check_session()) return "Session expired. Please log in again.";
+        if (!this.active) return "Print server is not running.";
+        return null;
+    }
+
+    public String start() throws RemoteException {
+        if (!session_manager.check_session()) return "Session expired. Please log in again.";
+        if (this.active) return "Print server is already running.";
+        this.active = true;
+        return "Print server started.";
+    }
+
+    public String stop() throws RemoteException {
+        if (!session_manager.check_session()) return "Session expired. Please log in again.";
+        if (!this.active) return "Print server is already stopped.";
+        this.active = false;
+        this.clear();
+        return "Print server stopped.";
+    }
+
+    public String restart() throws RemoteException {
+        if (!session_manager.check_session()) return "Session expired. Please log in again.";
+        if (!this.active) return "Print server is not running and cannot be restarted.";
+        this.clear();
+        return "Print server restarted.";
+    }
+
+    public String print(String filename, String printer) throws RemoteException {
+        String checkError = checkServerState();
+        if (checkError != null) return checkError;
         return printers[Printer.getPrinterId(printer)].print(filename);
     }
 
     public String queue(String printer) throws RemoteException {
-        // lists the print queue for a given printer on the user’s display in lines of the form ¡job number¿ ¡file name¿
-        if (!session_manager.check_session()) return "Session expired. Please log in again.";
+        String checkError = checkServerState();
+        if (checkError != null) return checkError;
         return printers[Printer.getPrinterId(printer)].queue();
     }
 
     public String topQueue(String printer, int job) throws RemoteException {
-        // moves job to the top of the queue
-        if (!session_manager.check_session()) return "Session expired. Please log in again.";
+        String checkError = checkServerState();
+        if (checkError != null) return checkError;
         return printers[Printer.getPrinterId(printer)].topQueue(job);
     }
 
     public String status(String printer) throws RemoteException {
-        // prints status of printer on the user’s display
-        if (!session_manager.check_session()) return "Session expired. Please log in again.";
+        String checkError = checkServerState();
+        if (checkError != null) return checkError;
         return printers[Printer.getPrinterId(printer)].status();
     }
 
     public String readConfig(String parameter) throws RemoteException {
-        // prints the value of the parameter on the print server to the user’s display
-        if (!session_manager.check_session()) return "Session expired. Please log in again.";
+        String checkError = checkServerState();
+        if (checkError != null) return checkError;
         return parameters.readConfig(parameter);
     }
 
     public String setConfig(String parameter, String value) throws RemoteException {
-        // sets the parameter on the print server to value
-        if (!session_manager.check_session()) return "Session expired. Please log in again.";
+        String checkError = checkServerState();
+        if (checkError != null) return checkError;
         return parameters.setConfig(parameter, value);
+    }
+
+    public void login() throws RemoteException {
+        this.session_manager.start_session();
+    }
+
+    public void logout() throws RemoteException {
+        this.session_manager.stop_session();
     }
 
     public void clear() throws RemoteException {

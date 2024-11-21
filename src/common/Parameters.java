@@ -75,12 +75,12 @@ public class Parameters
     }
 
     public String readConfig(String parameter) {
-        return "Value of " + parameter + " is set to: " + parameters.get(parameter) + "\n";
+        return "Value of " + parameter + " is set to: " + parameters.get(parameter);
     }
 
     public String setConfig(String parameter, String value) {
         parameters.put(parameter, value);
-        return "Value of " + parameter + " changed to: " + value + "\n";
+        return "Value of " + parameter + " changed to: " + value;
     }
 
     public void clear() {
