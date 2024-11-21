@@ -3,7 +3,6 @@ import common.Printer;
 
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
-import java.util.Currency;
 
 public class PrintServer extends UnicastRemoteObject implements PrintServerI {
 
