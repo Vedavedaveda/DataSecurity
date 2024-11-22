@@ -1,4 +1,4 @@
 user:-:print,queue
 power_user:user:topQueue,restart
 service_technician:-:start,stop,restart,status,readConfig,setConfig
-admin:power_priuser,service_technician:-
+admin:power_user,service_technician:-
