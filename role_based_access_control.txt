@@ -1,4 +1,4 @@
-admin:print,queue,topQueue,start,stop,restart,status,readConfig,setConfig
-service_technician:start,stop,restart,status,readConfig,setConfig
-power_user:print,queue,topQueue,restart
-user:print,queue
+user:-:print,queue
+power_user:user:topQueue,restart
+service_technician:-:start,stop,restart,status,readConfig,setConfig
+admin:power_priuser,service_technician:-

@@ -1,16 +1,18 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Roles {
     private static final String ROLE_BASED_ACCESS_CONTROL_FILE = "role_based_access_control.txt";
     private final Map<String, List<String>> roleOperations = new HashMap<>();
+    private final Map<String, List<String>> roleInheritance = new HashMap<>();
+    private final Map<String, Set<String>> resolvedPermissions = new HashMap<>();
+
 
     protected Roles() {
         this.loadRolesFromFile();
+        this.resolveAllPermissions();
     }
 
     public void loadRolesFromFile() {
@@ -21,10 +23,16 @@ public class Roles {
             try {
                 while((line = reader.readLine()) != null) {
                     String[] parts = line.split(":");
-                    if (parts.length == 2) {
+                    if (parts.length == 3) {
                         String roleName = parts[0];
-                        List<String> permissions = List.of(parts[1].split(","));
-                        roleOperations.put(roleName, permissions);
+                        String parentRoles = parts[1];
+                        String permissions = parts[2];
+
+                        List<String> parents = parentRoles.equals("-") ? Collections.emptyList() : List.of(parentRoles.split(","));
+                        List<String> perms = permissions.equals("-") ? Collections.emptyList() : List.of(permissions.split(","));
+
+                        roleInheritance.put(roleName, parents);
+                        roleOperations.put(roleName, perms);
                     }
                 }
             } catch (Throwable var5) {
@@ -43,12 +51,28 @@ public class Roles {
 
     }
 
-    public boolean checkIfRoleHasOperation(String roleName, String operation) {
-        if (!roleOperations.containsKey(roleName)) {
-            return false;
+    private void resolveAllPermissions() {
+        for (String role : roleOperations.keySet()) {
+            resolvePermissionsForRole(role);
+        }
+    }
+
+    private Set<String> resolvePermissionsForRole(String role) {
+        if (resolvedPermissions.containsKey(role)) {
+            return resolvedPermissions.get(role);
         }
 
-        List<String> permissions = roleOperations.get(roleName);
-        return permissions != null && permissions.contains(operation);
+        Set<String> permissions = new HashSet<>(roleOperations.getOrDefault(role, Collections.emptyList()));
+
+        for (String parentRole : roleInheritance.getOrDefault(role, Collections.emptyList())) {
+            permissions.addAll(resolvePermissionsForRole(parentRole));
+        }
+
+        resolvedPermissions.put(role, permissions);
+        return permissions;
+    }
+
+    public boolean checkIfRoleHasOperation(String roleName, String operation) {
+        return resolvedPermissions.getOrDefault(roleName, Collections.emptySet()).contains(operation);
     }
 }
